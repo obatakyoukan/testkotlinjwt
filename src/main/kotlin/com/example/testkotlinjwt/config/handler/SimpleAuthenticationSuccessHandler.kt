@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import org.springframework.http.HttpStatus
 import org.springframework.security.web.WebAttributes
 import javax.servlet.http.HttpSession
 
@@ -26,12 +27,14 @@ class SimpleAuthenticationSuccessHandler : AuthenticationSuccessHandler {
         response: HttpServletResponse?,
         authentication: Authentication?
     ) {
-        //TODO("Not yet implemented")
+
         if( response!!.isCommitted() ){
             //log.info("Response has already committed.")
             return
         }
-
+        setToken(response,generateToken(authentication!!))
+        response.status = HttpStatus.OK.value()
+        clearAuthenticationAttributes(request!!)
     }
 
     private val EXPIRATION_TIME : Long = TimeUnit.MINUTES.toMillis(10L)
@@ -62,7 +65,7 @@ class SimpleAuthenticationSuccessHandler : AuthenticationSuccessHandler {
     private fun clearAuthenticationAttributes(
         request: HttpServletRequest
     ){
-        var session : HttpSession = request.getSession(false)
+        var session : HttpSession? = request.getSession(false)
         if( session == null ){
             return;
         }

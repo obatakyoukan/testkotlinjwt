@@ -73,7 +73,16 @@ class SimpleTokenFilter : GenericFilterBean {
         return verifier.verify(token)
     }
     private fun authentication(jwt : DecodedJWT){
-        var userId : Long = jwt.subject as Long
+        logger.info("jwt subject value")
+        logger.info(jwt.subject)
+        var userId : Long? = jwt.subject.toLong()
+        logger.info("user_Id")
+        if( userId == null ){
+            logger.error("userId is null")
+            logger.error("subject is " + jwt.subject )
+            return
+        }
+
         var user : Optional<User> = userRepository.findById(userId)
         if( !user.isPresent() ){
             return
